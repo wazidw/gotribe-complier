@@ -1,16 +1,20 @@
 package main
 
 import (
-	"fmt"
-	"gotribe/compiler/lib"
+	"net/http"
+
+	"gotribe/compiler/router"
+
+	"github.com/gin-gonic/gin"
 )
 
 func main() {
-	lang := "rust"
-	code := "fn main() {\n    println!(\"Hello, world hhh!\");\n}\n"
-	tpl := lib.Run(lang)
-	output := lib.DockerRun(tpl.Image, code, tpl.File, tpl.Cmd)
-	fmt.Println(tpl)
-	fmt.Println(output)
-
+	r := gin.Default()
+	r.GET("/ping", func(c *gin.Context) {
+		c.JSON(http.StatusOK, gin.H{
+			"message": "pong",
+		})
+	})
+	r.POST("/run", router.Run.Exec)
+	r.Run(":9091") 
 }
