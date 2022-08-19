@@ -13,8 +13,7 @@ import (
 	"github.com/docker/docker/client"
 )
 
-func DockerRun(image string, code string, dest string, cmd string) string {
-	// log.DefaultLogger.Info("DockerRun-------------:")
+func DockerRun(image string, code string, dest string, cmd string, langTimeout int64, memory int64) string {
 	ctx := context.Background()
 	cli, err := client.NewClientWithOpts(client.FromEnv, client.WithAPIVersionNegotiation())
 	if err != nil {
@@ -23,12 +22,12 @@ func DockerRun(image string, code string, dest string, cmd string) string {
 	resp, err := cli.ContainerCreate(ctx, &container.Config{
 		Image:        image,
 		Cmd:          []string{"sh", "-c", cmd},
-		Tty:          true,
+		Tty:          false,
 		AttachStderr: true,
 		AttachStdout: true,
 	}, &container.HostConfig{
 		Resources: container.Resources{
-			Memory: 100 * 1024 * 1024, // Minimum memory limit allowed is 6MB.
+			Memory: memory, // Minimum memory limit allowed is 6MB.
 		},
 	}, nil, nil, "")
 	if err != nil {
@@ -57,13 +56,13 @@ func DockerRun(image string, code string, dest string, cmd string) string {
 
 	statusCh, errCh := cli.ContainerWait(ctx, resp.ID, container.WaitConditionNotRunning)
 
-	timeout := time.NewTimer(5 * time.Second)
+	timeout := time.NewTimer(time.Duration(langTimeout) * time.Second)
 	select {
 	case waitBody := <-statusCh:
-		log.DefaultLogger.Errorf("waitBody err:%v:", waitBody.StatusCode)
+		log.DefaultLogger.Info("waitBody err:", waitBody.StatusCode)
 		break
 	case errC := <-errCh:
-		log.DefaultLogger.Errorf("statusCh err:%v:", errC)
+		log.DefaultLogger.Errorf("ContainerWait statusCh err:%v:", errC)
 	case <-timeout.C:
 		log.DefaultLogger.Error("execute timeout")
 		cli.ContainerKill(ctx, resp.ID, "SIGKILL")
@@ -78,6 +77,6 @@ func DockerRun(image string, code string, dest string, cmd string) string {
 
 	defer out.Close()
 	output, _ := ioutil.ReadAll(out)
-	log.DefaultLogger.Info("ContainerRemove err:%v:", output)
+	log.DefaultLogger.Info("output:", string(output))
 	return string(output)
 }

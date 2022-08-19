@@ -10,4 +10,7 @@
 docker pull python:3
 docker pull rust
 docker pull golang
+docker pull php:5.6
+docker pull php:7
+docker pull php:8
 ```

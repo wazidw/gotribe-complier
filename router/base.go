@@ -7,14 +7,15 @@ type BaseController struct {
 
 type response struct {
 	Code    int         `json:"code"`
-	Message string      `json:"message"`
+	Message string      `json:"msg"`
 	Data    interface{} `json:"data"`
 }
 
 // Success ????
 func Success(message string, data interface{}) response {
 	res := response{}
-	res.Code = 200
+	// res.Code = 200
+	res.Code = 0
 	res.Message = message
 	res.Data = data
 	return res

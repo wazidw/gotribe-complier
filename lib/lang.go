@@ -3,17 +3,17 @@ package lib
 import (
 	"encoding/json"
 	"fmt"
-
 	"io/ioutil"
 	"log"
+	"os"
 )
 
 type runTpl struct {
 	Image   string `json:"image"`
 	File    string `json:"file"`
 	Cmd     string `json:"cmd"`
-	Timeout int    `json:"timeout"`
-	Memory  string `json:"memory"`
+	Timeout int64  `json:"timeout"`
+	Memory  int64  `json:"memory"`
 	CpuSet  string `json:"cpuset"`
 }
 
@@ -32,4 +32,16 @@ func Run(lang string) runTpl {
 	fmt.Println(tpl.Image)
 	fmt.Printf("tpl Struct: %#v\n", tpl)
 	return tpl
+}
+
+func LangExists(lang string) (bool, error) {
+	path := fmt.Sprintf("lib/lang/%s.json", lang)
+	_, err := os.Stat(path)
+	if err == nil {
+		return true, nil
+	}
+	if os.IsNotExist(err) {
+		return false, nil
+	}
+	return false, err
 }
