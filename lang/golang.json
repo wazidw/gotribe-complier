@@ -1,6 +1,6 @@
 {
     "image": "golang",
-    "file": "test.go",
+    "file": "./go/main.go",
     "cmd": "go run test.go",
     "timeout": 5,
     "memory": 104857600,

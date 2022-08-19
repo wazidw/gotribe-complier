@@ -42,7 +42,7 @@ func (p *RunController) Exec(c *gin.Context) {
 		return
 	}
 	tpl := lib.Run(params.Lang)
-	output := lib.DockerRun(tpl.Image, params.Code, tpl.File, tpl.Cmd, tpl.Timeout, tpl.Memory)
+	output := lib.DockerRun(tpl.Image, params.Code, tpl.File, tpl.Cmd, tpl.Timeout, tpl.Memory, tpl.CpuSet)
 	// 返回数据
 	data := make(map[string]string)
 	data["stdout"] = output

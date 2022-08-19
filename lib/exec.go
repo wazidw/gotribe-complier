@@ -13,21 +13,23 @@ import (
 	"github.com/docker/docker/client"
 )
 
-func DockerRun(image string, code string, dest string, cmd string, langTimeout int64, memory int64) string {
+func DockerRun(image string, code string, dest string, cmd string, langTimeout int64, memory int64, cpuset string) string {
 	ctx := context.Background()
 	cli, err := client.NewClientWithOpts(client.FromEnv, client.WithAPIVersionNegotiation())
 	if err != nil {
 		log.DefaultLogger.Error("NewClientWithOpts:", err)
 	}
 	resp, err := cli.ContainerCreate(ctx, &container.Config{
-		Image:        image,
-		Cmd:          []string{"sh", "-c", cmd},
-		Tty:          false,
-		AttachStderr: true,
-		AttachStdout: true,
+		Image:           image,
+		Cmd:             []string{"sh", "-c", cmd},
+		Tty:             false,
+		AttachStderr:    true,
+		AttachStdout:    true,
+		NetworkDisabled: true,
 	}, &container.HostConfig{
 		Resources: container.Resources{
-			Memory: memory, // Minimum memory limit allowed is 6MB.
+			Memory:     memory, // Minimum memory limit allowed is 6MB.
+			CpusetCpus: cpuset,
 		},
 	}, nil, nil, "")
 	if err != nil {
@@ -48,7 +50,9 @@ func DockerRun(image string, code string, dest string, cmd string, langTimeout i
 	tw.Close()
 
 	// use &buf as argument for content in CopyToContainer
-	cli.CopyToContainer(ctx, resp.ID, ".", &buf, types.CopyToContainerOptions{})
+	if err := cli.CopyToContainer(ctx, resp.ID, ".", &buf, types.CopyToContainerOptions{}); err != nil {
+		log.DefaultLogger.Errorf("CopyToContainer err:%v:", err)
+	}
 
 	if err := cli.ContainerStart(ctx, resp.ID, types.ContainerStartOptions{}); err != nil {
 		log.DefaultLogger.Errorf("ContainerStart err:%v:", err)
