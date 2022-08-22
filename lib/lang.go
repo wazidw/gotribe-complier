@@ -19,7 +19,7 @@ type runTpl struct {
 
 func Run(lang string) runTpl {
 	var tpl runTpl
-	lang = fmt.Sprintf("lib/lang/%s.json", lang)
+	lang = fmt.Sprintf("lang/%s.json", lang)
 
 	file, err := ioutil.ReadFile(lang)
 	if err != nil {
@@ -35,7 +35,7 @@ func Run(lang string) runTpl {
 }
 
 func LangExists(lang string) (bool, error) {
-	path := fmt.Sprintf("lib/lang/%s.json", lang)
+	path := fmt.Sprintf("lang/%s.json", lang)
 	_, err := os.Stat(path)
 	if err == nil {
 		return true, nil
