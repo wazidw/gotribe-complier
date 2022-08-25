@@ -14,3 +14,11 @@ docker pull php:5.6
 docker pull php:7
 docker pull php:8
 ```
+测试
+
+```
+curl -H "Content-Type: application/json" -X POST -d '{"lang":"golang","code":"package main\n\nimport (\n\t\"fmt\"\n)\n\nfunc main() {\n\tfmt.Println(\"Hello, gotribe\")\n}","input":""}' http://127.0.0.1:9091/run
+
+curl -H "Content-Type: application/json" -X POST -d '{"lang":"rust","code":"fn main() {\n    println!(\"Hello, gotribe!\");\n}","input":""}' http://127.0.0.1:9091/run
+
+```
